@@ -15,13 +15,21 @@ async function getAllUsers(req, res) {
 }
 async function createUser(req, res) {
   try {
-    if(!req.body) {
+    if (!req.body) {
       return res.status(400).json({ error: "No se ha enviado el cuerpo de la solicitud" });
     }
-    const newUser = new User(req.body);
-    newUser.password = bcrypt.hash(newUser.password, saltRounds); // Hashea la contraseña
-    await newUser.save(); 
-    res.status(201).json(newUser); 
+ //
+    const { password, ...resto } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10); // <- ¡Acá lo esperás!
+
+    const newUser = new User({
+      ...resto,
+      password: hashedPassword
+    });
+
+    await newUser.save();
+    res.status(201).json(newUser);
   } catch (error) {
     console.error("Error en createUser:", error);
     res.status(500).json({ error: "Error al crear usuario" });
