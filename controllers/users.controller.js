@@ -89,12 +89,16 @@ async function loginUser (req, res) {
       return res.status(400).json({ error: "Email y contraseña son requeridos" });
     }
    
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (!user) {
       return res.status(401).json({ error: "Credenciales inválidas" });
     }
     
-    const passwordMatch = bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      return res.status(401).json({ error: "Credenciales inválidas" });
+    }
+    
     console.log(password )
     console.log(user.password)
     if (!passwordMatch) {
@@ -113,8 +117,12 @@ async function loginUser (req, res) {
         id: user._id,
         email: user.email,
         name: user.name,     
-        role: user.rol    
-        // podés agregar más info acá si necesitás
+        role: user.rol,
+        country: user.country,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        isLogged: user.isLogged,
+        profilePicture: user.profilePicture
       },
       token: token // envía el token al cliente
     });

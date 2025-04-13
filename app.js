@@ -3,7 +3,6 @@ const routes = require("./routes/index")
 const app = express()
 const cors = require("cors")
 
-// Middleware to parse JSON bodies
 app.use(express.json());
 
 app.use(cors())
