@@ -14,10 +14,13 @@ async function getAllProducts(req, res) {
 // Crear un nuevo producto
 async function createProduct(req, res) {
     try {
+        
         if (!req.body || Object.keys(req.body).length === 0) {
             return res.status(400).json({ error: "No data provided" });
         }
         const newProduct = new Product(req.body);
+        newProduct.image = req.file.filename;
+        console.log(req.file.filename)
         await newProduct.save();
         res.status(201).json({ message: "Product created", product: newProduct });
     } catch (error) {
@@ -45,10 +48,20 @@ async function getProductById(req, res) {
 async function updateProduct(req, res) {
     try {
         const { id } = req.params;
-        const updatedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true });
+
+        const updateData = { ...req.body };
+
+        // Si se subió una nueva imagen, actualizala
+        if (req.file) {
+            updateData.image = req.file.filename;
+        }
+
+        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
         if (!updatedProduct) {
             return res.status(404).json({ error: "Product not found" });
         }
+
         res.json({ message: "Product updated", product: updatedProduct });
     } catch (error) {
         console.error("Error updating product:", error);
