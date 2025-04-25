@@ -12,13 +12,17 @@ async function getAllCategories(req, res) {
 
 async function createCategory(req, res) {
     try {
+
         if (!req.body || Object.keys(req.body).length === 0) {
         return res.status(400).json({ error: "No data provided" });
         }
         const newCategory = new Category(req.body);
+        newCategory.image = req.file.filename;
         await newCategory.save();
         res.status(201).json({ message: "Category created", category: newCategory });
     } catch (error) {
+
+
         console.error("Error creating category:", error);
         res.status(500).json({ error: "Error creating category" });
     }
@@ -55,19 +59,26 @@ async function deleteCategory(req, res) {
 
 async function updateCategory(req, res) {
 try {
-    const { id } = req.params;
-    const body  = req.body;
-    const category = await Category.findByIdAndUpdate(id,body);
-    if (!category) {
-      return res.status(404).json({ error: "Categoria no encontrada" });
+        const { id } = req.params;
+
+        const updateData = { ...req.body };
+
+        // Si se subió una nueva imagen, actualizala
+        if (req.file) {
+            updateData.image = req.file.filename;
+        }
+
+        const updatedCategory = await Category.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!updatedCategory) {
+            return res.status(404).json({ error: "Product not found" });
+        }
+
+        res.json({ message: "Category updated", category: updatedCategory });
+    } catch (error) {
+        console.error("Error updating category:", error);
+        res.status(500).json({ error: "Error updating product" });
     }
-     return res.status(200).send({ message: "Categoria actualizada" , category : category});
-  }
-  catch (error) {
-    console.error("Error en updateCategory:", error);
-    res.status(500).json({ error: "Error al actualizar categoria" });
-  }
-    
 }
 
 module.exports = {

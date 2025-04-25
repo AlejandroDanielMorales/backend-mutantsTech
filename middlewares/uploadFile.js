@@ -13,7 +13,9 @@ const storage = multer.diskStorage({
         if (req.path.includes("/users")) {
             dir = path.join(__dirname, '../uploads/users');
         }
-
+        if (req.path.includes("/categories")) {
+            dir = path.join(__dirname, '../uploads/categories');
+        }
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
         }
