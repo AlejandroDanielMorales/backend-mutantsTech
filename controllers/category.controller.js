@@ -58,7 +58,7 @@ try {
     const { id } = req.params;
     const body  = req.body;
     const category = await Category.findByIdAndUpdate(id,body);
-    if (!user) {
+    if (!category) {
       return res.status(404).json({ error: "Categoria no encontrada" });
     }
      return res.status(200).send({ message: "Categoria actualizada" , category : category});
