@@ -8,12 +8,9 @@ const storage = multer.diskStorage({
         let dir;
         if (req.path.includes("/products")) {
             dir = path.join(__dirname, '../uploads/products');
-        }
-
-        if (req.path.includes("/users")) {
+        } else if (req.path.includes("/users")) {
             dir = path.join(__dirname, '../uploads/users');
-        }
-        if (req.path.includes("/categories")) {
+        } else if (req.path.includes("/categories")) {
             dir = path.join(__dirname, '../uploads/categories');
         }
         if (!fs.existsSync(dir)) {
@@ -30,6 +27,21 @@ const storage = multer.diskStorage({
     }
 });
 
-const upload = multer({ storage }).single('image');
+// ACA la magia:
+const uploadMiddleware = (req, res, next) => {
+    let fieldName = 'image'; // default
 
-module.exports = upload;
+    if (req.path.includes('/users')) {
+        fieldName = 'profilePicture';
+    }
+
+    const upload = multer({ storage }).single(fieldName);
+    upload(req, res, function (err) {
+        if (err) {
+            return res.status(400).send({ message: err.message });
+        }
+        next();
+    });
+};
+
+module.exports = uploadMiddleware;

@@ -18,14 +18,14 @@ async function createUser(req, res) {
     if (!req.body) {
       return res.status(400).json({ error: "No se ha enviado el cuerpo de la solicitud" });
     }
- //
-    const { password, ...resto } = req.body;
 
-    const hashedPassword = await bcrypt.hash(password, 10); // <- ¡Acá lo esperás!
+    const { password, ...resto } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = new User({
       ...resto,
-      password: hashedPassword
+      password: hashedPassword,
+      profilePicture: req.file?.filename || null,
     });
 
     await newUser.save();
@@ -37,23 +37,63 @@ async function createUser(req, res) {
 }
 
 async function updateUser(req, res) {
-  
   try {
     const { id } = req.params;
-    const body  = req.body;
-    const user = await User.findByIdAndUpdate(id,body);
+    const updates = req.body;
+
+    if (req.file) {
+      updates.profilePicture = req.file.filename; 
+    }
+
+    const user = await User.findByIdAndUpdate(id, updates, { new: true });
+
     if (!user) {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
-     return res.status(200).send({ message: "Usuario actualizado" });
-  }
-  catch (error) {
+
+    return res.status(200).json({ message: "Usuario actualizado", user });
+  } catch (error) {
     console.error("Error en updateUser:", error);
     res.status(500).json({ error: "Error al actualizar usuario" });
   }
-    
-    
 }
+
+
+async function updateUserByUser(req, res) {
+  try {
+    const { id } = req.params;
+    const name = req.body.name;
+    const country = req.body.country;
+    const email = req.body.email;
+    const password = req.body.password;
+    
+    const updates = { name, country, email, password };
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+      updates.password = hashedPassword;
+    }
+
+
+    if (req.file) {
+      updates.profilePicture = req.file.filename; 
+    }
+
+
+    const user = await User.findByIdAndUpdate(id, updates, { new: true });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    return res.status(200).json({ message: "Usuario actualizado", user });
+  } catch (error) {
+    console.error("Error en updateUser:", error);
+    res.status(500).json({ error: "Error al actualizar usuario" });
+  }
+}
+
+
 async function getUserById(req, res) {
   const { id } = req.params;
   try {
@@ -139,5 +179,6 @@ module.exports = {
   updateUser,
   deleteUser,
   getUserById,
-  loginUser
+  loginUser,
+  updateUserByUser
 }
