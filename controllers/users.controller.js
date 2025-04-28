@@ -36,6 +36,28 @@ async function createUser(req, res) {
   }
 }
 
+async function getCurrentUser(req, res) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: "Token no proporcionado" });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, SECRET);
+
+    const user = await User.findById(decoded._id).select('-password -__v');
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    res.json(user);
+  } catch (error) {
+    console.error("Error en getCurrentUser:", error);
+    res.status(401).json({ error: "Token inválido o expirado" });
+  }
+}
+
 async function updateUser(req, res) {
   try {
     const { id } = req.params;
@@ -180,5 +202,6 @@ module.exports = {
   deleteUser,
   getUserById,
   loginUser,
-  updateUserByUser
+  updateUserByUser,
+  getCurrentUser
 }

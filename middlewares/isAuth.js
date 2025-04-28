@@ -1,13 +1,14 @@
 const jwt = require("jsonwebtoken");
 const SECRET = "mi-secretoASDASF"; // Cambia esto por una variable de entorno en producción
 
-
 function isAuth(req, res, next) {
-    const token = req.headers.access_token ;
+    const authHeader = req.headers.authorization;
 
-    if (!token) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ error: "Token no proporcionado" });
     }
+
+    const token = authHeader.split(' ')[1];
 
     jwt.verify(token, SECRET, (err, decoded) => {
         if (err) {
