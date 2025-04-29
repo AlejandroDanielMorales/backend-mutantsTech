@@ -1,7 +1,10 @@
+require("dotenv").config();
+
 const User = require("../models/user.model")
 const bcrypt = require("bcryptjs")
 const jwt = require("jsonwebtoken")
-const SECRET = "mi-secretoASDASF" // Cambia esto por una variable de entorno en producción"""
+const SECRET = process.env.JWT_SECRET;
+
 const saltRounds = 10;
 
 async function getAllUsers(req, res) {

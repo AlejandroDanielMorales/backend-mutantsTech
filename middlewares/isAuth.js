@@ -1,5 +1,6 @@
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
-const SECRET = "mi-secretoASDASF"; // Cambia esto por una variable de entorno en producción
+const SECRET = process.env.JWT_SECRET;
 
 function isAuth(req, res, next) {
     const authHeader = req.headers.authorization;
