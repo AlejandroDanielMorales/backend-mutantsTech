@@ -18,9 +18,14 @@ async function getAllUsers(req, res) {
 }
 async function createUser(req, res) {
   try {
+
     if (!req.body) {
       return res.status(400).json({ error: "No se ha enviado el cuerpo de la solicitud" });
     }
+    const existe = await User.findOne({ email: req.body.email });
+if (existe) {
+  return res.status(409).json({ error: "El correo ya está registrado" });
+}
 
     const { password, ...resto } = req.body;
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -30,6 +35,7 @@ async function createUser(req, res) {
       password: hashedPassword,
       profilePicture: req.file?.filename || null,
     });
+    
 
     await newUser.save();
     res.status(201).json(newUser);
