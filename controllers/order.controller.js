@@ -68,7 +68,27 @@ async function getOrders(req, res) {
     }   
 }
 
+async function getUserOrders(req, res) {
+    try {
+        const userId = req.user._id;
+
+        const orders = await Order.find({ user: userId })
+            .populate('products.product', 'name price');
+
+        if (!orders.length) {
+            return res.status(404).json({ message: 'No hay órdenes para este usuario' });
+        }
+
+        res.status(200).json({ orders });
+    } catch (error) {
+        console.error("Error al obtener órdenes del usuario:", error);
+        res.status(500).json({ message: 'Error al obtener órdenes del usuario', error });
+    }
+}
+
+
 module.exports = {
     createOrder,
-    getOrders
+    getOrders,
+    getUserOrders,
 }
