@@ -56,14 +56,18 @@ async function deleteCategory(req, res) {
         res.status(500).json({ error: "Error deleting category" });
     }
 }
-
 async function updateCategory(req, res) {
-try {
+    try {
         const { id } = req.params;
 
-        const updateData = { ...req.body };
+        const updateData = {};
 
-        // Si se subió una nueva imagen, actualizala
+        // Solo permitir actualizar la descripción
+        if (req.body.description) {
+            updateData.description = req.body.description;
+        }
+
+        // Y la imagen si se subió una nueva
         if (req.file) {
             updateData.image = req.file.filename;
         }
@@ -71,15 +75,16 @@ try {
         const updatedCategory = await Category.findByIdAndUpdate(id, updateData, { new: true });
 
         if (!updatedCategory) {
-            return res.status(404).json({ error: "Product not found" });
+            return res.status(404).json({ error: "Category not found" });
         }
 
         res.json({ message: "Category updated", category: updatedCategory });
     } catch (error) {
         console.error("Error updating category:", error);
-        res.status(500).json({ error: "Error updating product" });
+        res.status(500).json({ error: "Error updating category" });
     }
 }
+
 
 module.exports = {
   getAllCategories,
