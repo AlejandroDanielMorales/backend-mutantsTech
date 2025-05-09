@@ -42,7 +42,7 @@ if (existe) {
     res.status(201).json(newUser);
   } catch (error) {
     console.error("Error en createUser:", error);
-    res.status(500).json({ error: "Error al crear usuario" });
+    res.status(500).json({ error: error  });
   }
 }
 
