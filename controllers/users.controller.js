@@ -33,8 +33,9 @@ if (existe) {
     const newUser = new User({
       ...resto,
       password: hashedPassword,
-      profilePicture: req.file?.filename || null,
+      profilePicture: req.file ? req.file.filename : null
     });
+
     
 
     await newUser.save();
