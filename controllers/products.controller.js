@@ -46,28 +46,30 @@ async function getProductById(req, res) {
 
 // Actualizar un producto por ID
 async function updateProduct(req, res) {
-    try {
-        const { id } = req.params;
+    try {
+        const { id } = req.params;
+        const updateData = { ...req.body };
 
-        const updateData = { ...req.body };
+        // Si no se sube nueva imagen, no modificar el campo
+        if (!req.file) {
+            delete updateData.image;
+        } else {
+            updateData.image = req.file.filename;
+        }
 
-        // Si se subió una nueva imagen, actualizala
-        if (req.file) {
-            updateData.image = req.file.filename;
-        }
+        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
 
-        const updatedProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+        if (!updatedProduct) {
+            return res.status(404).json({ error: "Product not found" });
+        }
 
-        if (!updatedProduct) {
-            return res.status(404).json({ error: "Product not found" });
-        }
-
-        res.json({ message: "Product updated", product: updatedProduct });
-    } catch (error) {
-        console.error("Error updating product:", error);
-        res.status(500).json({ error: "Error updating product" });
-    }
+        res.json({ message: "Product updated", product: updatedProduct });
+    } catch (error) {
+        console.error("Error updating product:", error);
+        res.status(500).json({ error: "Error updating  product" });
+    }
 }
+
 
 // Eliminar un producto por ID
 async function deleteProduct(req, res) {
