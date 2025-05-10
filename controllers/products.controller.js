@@ -43,6 +43,31 @@ async function getProductById(req, res) {
         res.status(500).json({ error: "Error fetching product" });
     }
 }
+async function getProductsByQuery(req, res) {
+    try {
+        const { q } = req.query;
+
+        if (!q) {
+            return res.status(400).json({ error: "Query parameter 'q' is required" });
+        }
+
+        const regex = new RegExp(q, 'i'); // 'i' para que sea case-insensitive
+
+        const products = await Product.find({
+            $or: [
+                { name: { $regex: regex } },
+                { category: { $regex: regex } },
+                { description: { $regex: regex } }
+            ]
+        });
+
+        res.json(products);
+    } catch (error) {
+        console.error("Error fetching products by query:", error);
+        res.status(500).json({ error: "Error fetching products by query" });
+    }
+}
+
 
 // Actualizar un producto por ID
 async function updateProduct(req, res) {
@@ -91,5 +116,6 @@ module.exports = {
     createProduct,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductsByQuery
 };
