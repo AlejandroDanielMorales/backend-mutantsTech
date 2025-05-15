@@ -47,7 +47,7 @@ const upload = multer({
     limits: { fileSize: 5 * 1024 * 1024 } // 5MB
 });
 
-const uploadMiddleware = (req, res, next) => {
+const uploadMiddlewareWebp = (req, res, next) => {
     let fieldName = 'image';
     if (req.path.includes('/users')) {
         fieldName = 'profilePicture';
